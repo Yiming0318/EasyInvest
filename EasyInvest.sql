@@ -1,0 +1,173 @@
+CREATE SCHEMA IF NOT EXISTS EasyInvest;
+USE EasyInvest;
+ 
+DROP TABLE IF EXISTS DailyStockRecommendation;	
+DROP TABLE IF EXISTS Stocks;				
+DROP TABLE IF EXISTS MembershipSubscription;
+DROP TABLE IF EXISTS CreditCards;
+DROP TABLE IF EXISTS Reviews;
+DROP TABLE IF EXISTS Likes;  
+DROP TABLE IF EXISTS Repost; 	
+DROP TABLE IF EXISTS StrategyPost;   
+DROP TABLE IF EXISTS EducationalMaterials;
+DROP TABLE IF EXISTS MembershipUsers;
+DROP TABLE IF EXISTS RandomUsers;
+DROP TABLE IF EXISTS Admin;
+DROP TABLE IF EXISTS Users; 
+ 
+CREATE TABLE Users (
+UserName VARCHAR(255),
+Password VARCHAR(255) NOT NULL, 
+Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+IsMember BOOLEAN NOT NULL,
+FirstName VARCHAR(255) NOT NULL,
+LastName VARCHAR(255) NOT NULL,
+Phone VARCHAR(255),
+  CONSTRAINT pk_Users_UserName PRIMARY KEY (UserName)
+);
+ 
+CREATE TABLE Admin (
+UserName VARCHAR(225),
+LastLogin TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+CONSTRAINT pk_Admin_UserName PRIMARY KEY (UserName),
+CONSTRAINT fk_Admin_UserName FOREIGN KEY (UserName)
+REFERENCES Users(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE 
+);
+ 
+CREATE TABLE RandomUsers (
+UserName VARCHAR(225),
+CONSTRAINT pk_RandomUsers_UserName PRIMARY KEY (UserName),
+CONSTRAINT fk_RandomUsers_UserName FOREIGN KEY (UserName)
+REFERENCES Users(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE 
+);
+ 
+CREATE TABLE MembershipUsers (
+UserName VARCHAR(225),
+Revenue DECIMAL(10, 2),
+CONSTRAINT pk_MembershipUsers_UserName PRIMARY KEY (UserName),
+CONSTRAINT fk_MembershipUsers_UserName FOREIGN KEY (UserName)
+REFERENCES Users(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE
+);
+ CREATE TABLE EducationalMaterials (
+MaterialId INT AUTO_INCREMENT,
+UserName VARCHAR(225),
+Title VARCHAR(225),
+Content VARCHAR(1024),
+Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+Published BOOLEAN,
+Likes INT,
+CONSTRAINT pk_EducationalMaterials_MaterialId PRIMARY KEY (MaterialId),
+CONSTRAINT fk_EducationalMaterials_UserName FOREIGN KEY (UserName)
+REFERENCES Admin(UserName)
+ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE TABLE StrategyPost(
+PostId INT AUTO_INCREMENT,
+Title VARCHAR(255),
+Content VARCHAR(1024),
+Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+UserName VARCHAR(255),
+Published BOOLEAN,
+Likes INT,
+CONSTRAINT pk_StrategyPost_PostId PRIMARY KEY (PostId),
+CONSTRAINT fk_StrategyPost_UserName FOREIGN KEY(UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE
+);
+ 
+CREATE TABLE Repost(
+RepostId INT AUTO_INCREMENT,
+Description VARCHAR(255),
+UserName VARCHAR(255),
+PostId INT,
+CONSTRAINT pk_Repost_RepostId PRIMARY KEY (RepostId),
+CONSTRAINT fk_Repost_UserName FOREIGN KEY (UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE SET NULL,
+CONSTRAINT fk_Repost_PostId FOREIGN KEY (PostId)
+REFERENCES StrategyPost(PostId)
+ON UPDATE CASCADE ON DELETE SET NULL
+);
+ 
+CREATE TABLE Likes (
+LikeId INT AUTO_INCREMENT,
+UserName VARCHAR(255),
+PostId INT,
+Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+CONSTRAINT pk_Likes_LikeId PRIMARY KEY (LikeId),
+CONSTRAINT fk_Likes_UserName FOREIGN KEY (UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE SET NULL,
+CONSTRAINT fk_Likes_PostId FOREIGN KEY (PostId)
+REFERENCES StrategyPost(PostId)
+ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE TABLE Reviews (
+ReviewId INT AUTO_INCREMENT,
+UserName VARCHAR(225),
+PostId INT,
+Review VARCHAR(1024),
+CONSTRAINT pk_Reviews_ReviewId PRIMARY KEY (ReviewId),
+CONSTRAINT fk_Reviews_UserName FOREIGN KEY (UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE SET NULL,
+CONSTRAINT fk_Reviews_PostId FOREIGN KEY (PostId)
+REFERENCES StrategyPost(PostId)
+ON UPDATE CASCADE ON DELETE SET NULL
+);
+
+CREATE TABLE CreditCards (
+CreditCardId BIGINT,
+UserName VARCHAR(225),
+Expiration DATE,
+CONSTRAINT pk_CreditCards_CreditCardId PRIMARY KEY (CreditCardId),
+CONSTRAINT fk_CreditCards_UserName FOREIGN KEY(UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE
+);
+ 
+CREATE TABLE MembershipSubscription (
+TransactionId INT AUTO_INCREMENT,
+UserName VARCHAR(225),
+SubscriptionPrice DECIMAL(5, 2),
+StartDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+CONSTRAINT pk_MembershipSubscription_TransactionId PRIMARY KEY (TransactionId),
+CONSTRAINT fk_MembershipSubscription_UserName FOREIGN KEY(UserName)
+REFERENCES MembershipUsers(UserName)
+ON UPDATE CASCADE ON DELETE CASCADE
+);
+ 
+CREATE TABLE Stocks(
+Date TIMESTAMP,
+Open DECIMAL(9,3),
+High DECIMAL(9, 3),
+Low DECIMAL(9,3),
+Close DECIMAL(9,3),
+AdjClose DECIMAL(9,3),
+Volume BIGINT,
+StockCapRank  INT,
+TickerName VARCHAR(255),
+CONSTRAINT pk_UniqId PRIMARY KEY(TickerName, Date)
+);
+ 
+CREATE TABLE DailyStockRecommendation(
+DailyStockRecommendationID INT AUTO_INCREMENT,
+TickerName VARCHAR(255),
+Date TIMESTAMP,
+PositionType ENUM('Long','Short'),
+CONSTRAINT pk_DailyStockRecommendationID PRIMARY KEY(DailyStockRecommendationID)
+);
+
+
+LOAD DATA INFILE '/usr/local/mysql-8.0.28-macos11-arm64/tmp/stocks_data/res.csv' INTO TABLE Stocks
+  # Fields are not quoted.
+  FIELDS TERMINATED BY ','
+  # Windows platforms may need '\r\n'.#  # Windows platforms may need '\r\n'.
+  LINES TERMINATED BY '\n'
+  IGNORE 1 LINES;
+
