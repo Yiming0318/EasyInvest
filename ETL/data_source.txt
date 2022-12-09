@@ -1,0 +1,19 @@
+Crude oil price - Cushing, OK WTI Spot Price FOB (Dollars per Barrel):
+https://www.eia.gov/dnav/pet/hist/LeafHandler.ashx?n=PET&s=RWTC&f=M
+
+Fed interest rate
+https://www.federalreserve.gov/
+https://www.investing.com/economic-calendar/interest-rate-decision-168
+
+CPI U.S. Consumer Price Index (CPI) YoY
+https://www.investing.com/economic-calendar/cpi-733
+https://www.bls.gov/cpi/
+
+META, XOM Revenue
+https://www.macrotrends.net/stocks/charts/META/meta-platforms/revenue
+https://www.macrotrends.net/stocks/charts/XOM/exxon/revenue
+
+META, XOM stock price
+Yahoo Finance
+https://finance.yahoo.com/quote/META?p=META&.tsrc=fin-srch
+https://finance.yahoo.com/quote/XOM?p=XOM&.tsrc=fin-srch
